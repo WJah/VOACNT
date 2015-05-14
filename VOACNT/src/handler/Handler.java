@@ -82,14 +82,14 @@ public class Handler extends NullPointerException
 	public void setChannel(int XFPId, int channelId, String xfpString)
 	{
 		if (!isConnected)
-		{sss
+		{
 			return;
 		}
 		xfpId = XFPId;
 		this.xfpString = xfpString;
 		rs.write((byte)(0x21 + 0x10 * XFPId + channelId));// 设置光模块通道号
 		ChannelGetter channelGetter = new ChannelGetter(XFPId);//启动新的线程，隔30s再读取波长通道
-		channelGetter.start();sssss
+		channelGetter.start();
 		System.err.println((byte) (0x21 + 0x10 * XFPId + channelId));
 //		setChannelNum(channelId);
 	}

@@ -19,7 +19,7 @@ public abstract class Constants
 	public static final byte  CH_READ_TAG = (byte) 0xFE;
 	
 	//excel文件地址
-	public static final String EXCEL = ".\4VOA.xlsx";
+	public static final String EXCEL = "./VOAATT.xls";
 	
 	//有效衰减范围
 	public static final int EFF_ATT = 242;
