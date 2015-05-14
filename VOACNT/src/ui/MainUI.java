@@ -1,6 +1,6 @@
 package ui;
 
-import handler.AWGMap;
+import handler.ATTMap;
 import handler.Constants;
 import handler.Handler;
 
@@ -19,6 +19,7 @@ import java.awt.Panel;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -34,11 +35,14 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import com.sun.org.apache.xerces.internal.impl.dv.xs.FullDVFactory;
+
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.TextField;
 import java.awt.Component;
+import java.beans.PropertyChangeListener;
+
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
@@ -47,22 +51,26 @@ import javax.swing.border.EtchedBorder;
 
 public class MainUI
 {
-	private ListenerPanel listenerPanel;
-	private ConfigPanel configPanel;
-	private FilePanel filePanel;
 	private final static MainUI mainUI = new MainUI();
 	static JFrame frmWdmpon;
 	private static Handler handler = new Handler();
-	public static AWGMap awgMap;
+	public static ATTMap awgMap;
 	private static String[] COMs = null;
-	private JTextField textField_1;
+	private JTextField staticAttTextField;
 	private JTextField textField_2;
 	private JTextField textField_3;
 	private JTextField textField_4;
 	private JTextField textField_5;
 	private JTextField textField_6;
 	private JTextField textField_7;
-
+	private JTextField textField_8;
+	
+	//固定衰减设置
+	private byte staticATT = Constants.DEFAULT_ATT; 
+	private byte staticCh = (byte)0x01;
+	
+	
+	ATTMap attMap = new ATTMap();
 	/**
 	 * Create the application.
 	 */
@@ -116,7 +124,7 @@ public class MainUI
 	 */
 	private MainUI()
 	{
-		awgMap = new AWGMap();
+		awgMap = new ATTMap();
 		frmWdmpon = new JFrame();
 		frmWdmpon.setResizable(false);
 		frmWdmpon.setSize(new Dimension(542, 373));
@@ -146,9 +154,22 @@ public class MainUI
 		JLabel lblNewLabel_2 = new JLabel("\u6E29\u5EA6:");
 		panel_13.add(lblNewLabel_2);
 		
-		JComboBox comboBox = new JComboBox();
-		panel_13.add(comboBox);
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"25", "30", "35", "40", "45", "50", "55", "60", "65", "70"}));
+		final JComboBox<String> tempComboBox = new JComboBox<String>();
+		panel_13.add(tempComboBox);
+		tempComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"25", "30", "35", "40", "45", "50", "55", "60", "65", "70"}));
+		
+		tempComboBox.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				// TODO Auto-generated method stub
+				int index = tempComboBox.getSelectedIndex();
+				handler.setWorkTemp(Constants.TEMP[index]);
+			}
+		});
+		
 		
 		JPanel panel = new JPanel();
 		panel_3.add(panel);
@@ -157,19 +178,43 @@ public class MainUI
 		JLabel lblNewLabel_3 = new JLabel("\u901A\u9053\u9009\u62E9:");
 		panel.add(lblNewLabel_3);
 		
-		JComboBox comboBox_1 = new JComboBox();
-		comboBox_1.setModel(new DefaultComboBoxModel(new String[] {"CH1", "CH2", "CH3", "CH4", "SINGLE"}));
-		panel.add(comboBox_1);
+		final JComboBox<String> chComboBox1 = new JComboBox<String>();
+		chComboBox1.setModel(new DefaultComboBoxModel<String>(new String[] {"CH1", "CH2", "CH3", "CH4", "SINGLE"}));
+		panel.add(chComboBox1);
+		
+		chComboBox1.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				// TODO Auto-generated method stub
+				int index = chComboBox1.getSelectedIndex();
+				staticCh = Constants.CHANNEL[index];
+			}
+		});
 		
 		JLabel lblNewLabel_4 = new JLabel("\u8870\u51CF\u91CF:");
 		panel.add(lblNewLabel_4);
 		
-		textField_1 = new JTextField();
-		panel.add(textField_1);
-		textField_1.setColumns(10);
+		staticAttTextField = new JTextField();
+		panel.add(staticAttTextField);
+		staticAttTextField.setColumns(10);
 		
 		JLabel lblNewLabel_1 = new JLabel("dB");
 		panel.add(lblNewLabel_1);
+		
+		JButton staticAttButton = new JButton("\u786E\u5B9A");
+		staticAttButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				double inputAtt = Double.valueOf(staticAttTextField.getText());
+				if (inputAtt >= 0 && inputAtt < 37)
+				{
+					staticATT = attMap.getBestATT(inputAtt);
+				}
+			}
+		});
+		panel.add(staticAttButton);
 		
 		JPanel panel_14 = new JPanel();
 		panel_3.add(panel_14);
@@ -315,184 +360,18 @@ public class MainUI
 		JButton button_2 = new JButton("...");
 		panel_12.add(button_2);
 		
+		JLabel label = new JLabel("\u5468\u671F\uFF1A");
+		panel_2.add(label);
+		
+		textField_8 = new JTextField();
+		panel_2.add(textField_8);
+		textField_8.setColumns(10);
+		
+		JLabel lblUs_2 = new JLabel("us");
+		panel_2.add(lblUs_2);
+		
 		JButton button_3 = new JButton("\u786E\u5B9A");
 		panel_2.add(button_3);
 		// 创建面板
-		listenerPanel = new ListenerPanel();
-		configPanel = new ConfigPanel();
-		filePanel = new FilePanel();
-
-		listenerPanel.setBackground(Color.WHITE);
-		configPanel.setBackground(Color.WHITE);
 	}
-
-	/**
-	 * Initialize the contents of the frame.
-	 */
-	public ConfigPanel getConfigPanel()
-	{
-		return configPanel;
-	}
-
-	public ListenerPanel getListenerPanel()
-	{
-		return listenerPanel;
-	}
-	
-	public FilePanel getFilePanel()
-	{
-		return filePanel;
-	}
-
-	public class ListenerPanel extends JPanel
-	{
-		/**
-		 * 
-		 */
-		StaticPanel xfpPanel1;
-		private static final long serialVersionUID = 1L;
-
-		public ListenerPanel()
-		{
-			setLayout(new FlowLayout());
-
-			JPanel panel = new JPanel();
-			add(panel, BorderLayout.NORTH);
-
-			final JLabel tempThroLabel = new JLabel("工作温度:");
-			panel.add(tempThroLabel);
-
-			final JComboBox<Integer> tempsComboBox = new JComboBox<Integer>();
-			tempsComboBox.setModel(new DefaultComboBoxModel<>(new Integer[]
-			{30,40,50,60}));
-			tempsComboBox.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent e)
-				{
-					// TODO Auto-generated method stub
-					int index = tempsComboBox.getSelectedIndex();
-					int tempThro = tempsComboBox.getItemAt(index);
-					Constants.TEMP_ALARM_THRO = tempThro;
-				}
-			});
-			panel.add(tempsComboBox);
-
-			JPanel panel_1 = new JPanel();
-			add(panel_1, BorderLayout.CENTER);
-			xfpPanel1 = new StaticPanel(1);
-						
-			panel_1.add(xfpPanel1);
-			
-			xfpPanel1.setLayout(new GridLayout(1, 2, 0, 0));
-			
-
-		}
-
-	}
-
-	public class ConfigPanel extends JPanel
-	{
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private ChangablePanel switchPanel1;
-	
-		private LDPanel waveConPanel1;
-
-		public ConfigPanel()
-		{
-			setLayout(new BorderLayout(0, 0));
-
-			JPanel panel_1 = new JPanel();
-			add(panel_1, BorderLayout.CENTER);
-			panel_1.setLayout(new BorderLayout(0, 0));
-
-			JPanel panel = new JPanel();
-			panel_1.add(panel, BorderLayout.NORTH);
-			panel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
-
-			JLabel lblNewLabel = new JLabel("");
-			panel.add(lblNewLabel);
-
-			JPanel panel_2 = new JPanel();
-			panel_1.add(panel_2, BorderLayout.CENTER);
-			panel_2.setLayout(new GridLayout(0, 2, 0, 0));
-
-			JPanel panel_3 = new JPanel();
-			panel_3.setBorder(new TitledBorder(null,
-					"DAC路", TitledBorder.LEFT,
-					TitledBorder.TOP, null, null));
-			panel_2.add(panel_3);
-			panel_3.setLayout(new BorderLayout(0, 0));
-
-			String[] switchComboxModel = new String[]
-			{ "方波", "三角波","正弦波" };
-
-			switchPanel1 = new ChangablePanel(handler, 0, switchComboxModel);
-			panel_3.add(switchPanel1,BorderLayout.CENTER);
-
-			JPanel panel_5 = new JPanel();
-			panel_5.setBorder(new TitledBorder(UIManager
-					.getBorder("TitledBorder.border"),
-					"LD路", TitledBorder.LEFT,
-					TitledBorder.TOP, null, null));
-			panel_2.add(panel_5);
-			panel_5.setLayout(new GridLayout(1, 1, 0, 0));
-
-			// 设置XFP下拉框选项
-			String[] xfpComboxModel = awgMap.getChannels().keySet()
-					.toArray(new String[0]);
-			waveConPanel1 = new LDPanel(handler, 0, xfpComboxModel);
-			panel_5.add(waveConPanel1);
-
-		}
-	}
-	
-	public class FilePanel extends JPanel
-	{
-
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		public FilePanel() {
-			// TODO Auto-generated constructor stub
-			setLayout(new BorderLayout(0, 0));
-
-			JPanel panel_1 = new JPanel();
-			add(panel_1, BorderLayout.CENTER);
-			panel_1.setLayout(new BorderLayout(0, 0));
-
-			JPanel panel = new JPanel();
-			panel_1.add(panel, BorderLayout.NORTH);
-			panel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
-
-			JLabel lblNewLabel = new JLabel("");
-			panel.add(lblNewLabel);
-
-			JPanel panel_2 = new JPanel();
-			panel_1.add(panel_2, BorderLayout.CENTER);
-			panel_2.setLayout(new GridLayout(0, 1 , 0, 0));
-
-			JPanel panel_3 = new JPanel();
-			panel_3.setBorder(new TitledBorder(null,
-					"文件选择", TitledBorder.LEFT,
-					TitledBorder.TOP, null, null));
-			panel_3.setLayout(new FlowLayout());
-			
-			JLabel label = new JLabel("选择文件:");
-			JTextField textField = new JTextField(20);
-			JButton button = new JButton("...");
-			
-			panel_3.add(label);
-			panel_3.add(textField);
-			panel_3.add(button);
-			
-			panel_2.add(panel_3);
-
-		}
-	}
-
 }

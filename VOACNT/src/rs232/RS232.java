@@ -70,41 +70,6 @@ public abstract class RS232 implements SerialPortEventListener
 						tempMaps.put(tempMapKey, tempMap);
 						handler.getTemperature(tempMaps);
 					}
-					/**
-					 * 读取温度存入tempMaps
-					 */
-					if ((readBuffer[i] == Constants.TEMP_TAG1
-							|| readBuffer[i] == Constants.TEMP_TAG2
-							|| readBuffer[i] == Constants.TEMP_TAG3 || readBuffer[i] == Constants.TEMP_TAG4)
-							&& tempMapCur == 0)
-					{
-						chCur = 0;// 中断波长读取
-						tempMapKey = readBuffer[i];
-						tempMap = new HashMap<Integer, Byte>();
-						tempMapCur++;
-					} else if (tempMapCur == 1)
-					{
-						tempMap.put(tempMapCur, readBuffer[i]);
-						tempMapCur++;
-					} else if (tempMapCur == 2)
-					{
-						tempMap.put(tempMapCur, readBuffer[i]);
-						tempMapCur++;
-					}else if (tempMapCur == 3)
-					{
-						int xfpId = (0x0F & tempMapKey) - 2;
-						if(readBuffer[i]  == 0 
-//								|| xfpId == 2
-								)
-						{
-							handler.setONUState(xfpId, 0);
-						}
-						else
-						{
-							handler.setONUState(xfpId, 2);
-						}
-						tempMapCur++;
-					}
 
 					/**
 					 * 读取波长

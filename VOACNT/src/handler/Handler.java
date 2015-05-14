@@ -9,7 +9,6 @@ import java.util.Set;
 
 import rs232.RS232;
 import ui.MainUI;
-import ui.StaticPanel;
 
 public class Handler extends NullPointerException
 {
@@ -57,18 +56,40 @@ public class Handler extends NullPointerException
 		return !isConnected;
 	}
 
+	/**
+	 * 设置VOA工作温度
+	 * @param temp 工作温度
+	 */
+	public void setWorkTemp(byte temp)
+	{
+		rs.write(Constants.TEMP_SETTING_TAG);
+		rs.write(temp);
+	}
+	
+	/**
+	 * 设置VOA固定衰减
+	 * @param ch 通道
+	 * @param att 固定衰减量
+	 */
+	public void setStaticATT(byte ch, byte att)
+	{
+		rs.write(Constants.STATIC_ATT_SETTING_TAG_1);
+		rs.write(Constants.STATIC_ATT_SETTING_TAG_2);
+		rs.write(ch);
+		rs.write(att);
+	}
 	// 设置通道波长
 	public void setChannel(int XFPId, int channelId, String xfpString)
 	{
 		if (!isConnected)
-		{
+		{sss
 			return;
 		}
 		xfpId = XFPId;
 		this.xfpString = xfpString;
 		rs.write((byte)(0x21 + 0x10 * XFPId + channelId));// 设置光模块通道号
 		ChannelGetter channelGetter = new ChannelGetter(XFPId);//启动新的线程，隔30s再读取波长通道
-		channelGetter.start();
+		channelGetter.start();sssss
 		System.err.println((byte) (0x21 + 0x10 * XFPId + channelId));
 //		setChannelNum(channelId);
 	}
@@ -102,19 +123,14 @@ public class Handler extends NullPointerException
 	public void setChannelNum(int channelId) 
 	{
 		try {
-			AWGMap awgMap = new AWGMap();
-			Map<String, List<String>> Channels = awgMap.getChannels();
+			ATTMap awgMap = new ATTMap();
 			System.out.println(xfpString);
-			List<String> waveStrings = Channels.get(xfpString);
-			
 			
 		} catch (NullPointerException e) {
 			// TODO: handle exception
 			this.closeCom();
 			this.openCom();
-		}
-		
-		
+		}		
 	}
 
 	// 开关光模块
@@ -156,14 +172,6 @@ public class Handler extends NullPointerException
 			DecimalFormat df = new DecimalFormat("#.00"); // 保留两位小数
 			int xfpId = (0x0F & key) - 1;
 			
-			if (temp > Constants.TEMP_ALARM_THRO) // 当温度大于高温警报阈值时关闭光模块
-			{
-				xpfSwitch(xfpId, false);
-				
-			} else
-			{
-				
-			}
 		}
 	}
 
