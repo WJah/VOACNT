@@ -1,5 +1,7 @@
 package handler;
 
+import com.sun.org.apache.xerces.internal.xs.datatypes.ByteList;
+
 public abstract class Constants
 {
 	//温度数组
@@ -7,14 +9,14 @@ public abstract class Constants
 		{(byte) 0x80,(byte)0x70,(byte)0x66,
 		(byte)0x54,(byte)0x50,(byte)0x46,(byte)0x3E,
 		(byte)0x36,(byte)0x2F,(byte)0x2B};
-	public static final byte TEMP_SETTING_TAG = (byte)0x00;
+	public static final byte TEMP_SETTING_TAG = (byte)0x03;
 	
 	//VOA通道数组
 	public static final byte CHANNEL[] =
 		{(byte)0x01,(byte)0x02,(byte)0x03,(byte)0x04,(byte)0x00};
 	
-	//默认衰减
-	public static final byte DEFAULT_ATT = (byte)0x3D;
+	//默认衰减10dB
+	public static final double DEFAULT_ATT = 10;
 	//读取通道号标识
 	public static final byte  CH_READ_TAG = (byte) 0xFE;
 	
@@ -24,9 +26,22 @@ public abstract class Constants
 	//有效衰减范围
 	public static final int EFF_ATT = 242;
 	
+	//DAC方式功能标示
+	public static final byte DAC_FUNC_SETTING_TAG = 0x01;
+	
 	//固定衰减设置标识
-	public static final byte STATIC_ATT_SETTING_TAG_1 = 0x01;
-	public static final byte STATIC_ATT_SETTING_TAG_2 = 0x01;
+	public static final byte STATIC_ATT_SETTING_TAG = 0x01;
+	
+	
+	//可变衰减功能标示
+	public static final byte VAR_ATT_SETTING_TAG = 0x02;
+	
+	//可变衰减变化规律标示
+	public static final byte VAR_ATT_RULE_TAGS[] = {(byte)0x01 ,(byte)0x02,(byte)0x03}; //方波
+	
+	//可变衰减默认最值
+	public static final double VAR_ATT_MIN = 0;
+	public static final double VAR_ATT_MAX = 37;
 	
 	//读取ONU注册状态标识
 	public static final byte ONU1_REG_TAG = (byte)0x21;

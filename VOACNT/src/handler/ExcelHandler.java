@@ -31,10 +31,8 @@ public class ExcelHandler
 		Sheet sheet = workbook.getSheet(0);
 		for (int i = 0; i < Constants.EFF_ATT; i++)
 		{
-			System.out.println((byte)i);
 			ATTmap.put(Byte.valueOf((byte)i), Double.valueOf(sheet.getCell(2, i).getContents()));
 		}
-		System.out.println(ATTmap);
 		return ATTmap;
 	}
 }

@@ -7,6 +7,9 @@ import java.util.Set;
 
 
 
+
+import com.sun.org.apache.regexp.internal.recompile;
+
 import rs232.RS232;
 import ui.MainUI;
 
@@ -23,6 +26,7 @@ public class Handler extends NullPointerException
 	public RS232 rs;
 	int xfpId;
 	String xfpString;
+	private ATTMap attMap;
 
 	public Handler()
 	{
@@ -34,6 +38,7 @@ public class Handler extends NullPointerException
 				// TODO Auto-generated method stub
 			}
 		};
+		attMap = new ATTMap();
 	}
 
 	public String[] findCom()
@@ -64,6 +69,7 @@ public class Handler extends NullPointerException
 	{
 		rs.write(Constants.TEMP_SETTING_TAG);
 		rs.write(temp);
+		sendInvalidByte(5);
 	}
 	
 	/**
@@ -71,13 +77,27 @@ public class Handler extends NullPointerException
 	 * @param ch 通道
 	 * @param att 固定衰减量
 	 */
-	public void setStaticATT(byte ch, byte att)
+	public void setStaticATT(byte ch, double att)
 	{
-		rs.write(Constants.STATIC_ATT_SETTING_TAG_1);
-		rs.write(Constants.STATIC_ATT_SETTING_TAG_2);
+		byte ATT = attMap.getBestATT(att);
+		rs.write(Constants.DAC_FUNC_SETTING_TAG);
+		rs.write(Constants.STATIC_ATT_SETTING_TAG);
 		rs.write(ch);
-		rs.write(att);
+		rs.write(ATT);
+		sendInvalidByte(3);
 	}
+	
+	/**
+	 * 发送无效位
+	 * @param l 无效位长度
+	 */
+	private void sendInvalidByte(int l)
+	{
+		for (int i = 0; i < l; i++) {
+			rs.write((byte)0x00);			
+		}
+	}
+	
 	// 设置通道波长
 	public void setChannel(int XFPId, int channelId, String xfpString)
 	{
