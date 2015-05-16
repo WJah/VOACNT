@@ -8,6 +8,9 @@ import java.util.Set;
 
 
 
+
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
+
 import com.sun.org.apache.regexp.internal.recompile;
 
 import rs232.RS232;
@@ -87,6 +90,20 @@ public class Handler extends NullPointerException
 		sendInvalidByte(3);
 	}
 	
+	public void setVarATT(byte ch,byte rule,int cycle,double minAtt,double maxAtt)
+	{
+		System.out.println("cycle" + (byte)cycle);
+		byte MAXATT = attMap.getBestATT(maxAtt);
+		byte MINATT = attMap.getBestATT(minAtt);
+		rs.write(Constants.DAC_FUNC_SETTING_TAG);
+		rs.write(Constants.VAR_ATT_SETTING_TAG);
+		rs.write(ch);
+		rs.write(rule);
+		rs.write((byte)cycle);
+		rs.write(MINATT);
+		rs.write(MAXATT);
+		
+	}
 	/**
 	 * 发送无效位
 	 * @param l 无效位长度
@@ -97,6 +114,7 @@ public class Handler extends NullPointerException
 			rs.write((byte)0x00);			
 		}
 	}
+	
 	
 	// 设置通道波长
 	public void setChannel(int XFPId, int channelId, String xfpString)
@@ -222,8 +240,25 @@ public class Handler extends NullPointerException
 		{
 			
 		}
-		
-//		System.out.println("Green");
+		/**
+		 * 
+		 * 暂停	0x00	0x00	0x00	0x00	0x00	0x00	0x00
+		固定衰减设置	设置标识	通道选择1
+			衰减量设置	无效位
+			0x01	0x01	0x00~0x04	0x00~0xFF	XX	XX	XX
+		可变衰减量	设置标识	通道选择	变化规律2	周期	最小衰减量	最大衰减量
+			0x01	0x02	0x00~0x04	0x01~0x03	0x00~0xFF	0x00~0xFF	0x00~0xFF
+		文件输入	设置标识	通道选择	周期	文件大小高位3	文件大小低位3	无效位
+			0x01	0x03	0x00~0x04	0x00~0xFF	0x00~0x0E	0x00~0xFF	XX
+		LD方式方波设置	设置标识	通道选择	周期	占空比	无效位
+			0x02	0x00	0x00~0x04	0x00~0xFF	0x01~0x63	XX	XX
+		温度设置	设置标识	温度4	无效位
+			0x03	0x00	0xXX	XX	XX	XX	XX
+			
+			4、	温度设置：0x80:25度、0x70:30度、0x66:35度、0x54:40度、0x50:45度、0x46:50度、0x3E:55度、
+		0x36:60度、0x2F:65度、0x2B:70度。
+
+		**/
 
 	}
 }

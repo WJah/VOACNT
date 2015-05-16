@@ -89,16 +89,6 @@ public abstract class RS232 implements SerialPortEventListener
 //					System.err.println("read:" + readBuffer[i]);
 					
 					//¼àÌýÊÇ·ñ×¢²á
-					if ((readBuffer[i] == Constants.ONU1_REG_TAG
-							|| readBuffer[i] == Constants.ONU2_REG_TAG
-							|| readBuffer[i] == Constants.ONU3_REG_TAG || readBuffer[i] == Constants.ONU4_REG_TAG)
-							&& chCur == 0 && tempMapCur == 0)
-					{
-						System.out.println(readBuffer[i]);
-						System.out.println("registed");
-						handler.setONUState(readBuffer[i] - 34,0);
-					}
-					System.out.println(readBuffer[i]);
 				}
 
 			}

@@ -1,5 +1,7 @@
 package handler;
 
+import java.math.BigDecimal;
+
 import com.sun.org.apache.xerces.internal.xs.datatypes.ByteList;
 
 public abstract class Constants
@@ -43,11 +45,11 @@ public abstract class Constants
 	public static final double VAR_ATT_MIN = 0;
 	public static final double VAR_ATT_MAX = 37;
 	
-	//读取ONU注册状态标识
-	public static final byte ONU1_REG_TAG = (byte)0x21;
-	public static final byte ONU2_REG_TAG = (byte)0x22;
-	public static final byte ONU3_REG_TAG = (byte)0x23;
-	public static final byte ONU4_REG_TAG = (byte)0x24;
+	//可变衰减方波周期精度1.43us
+	public static final double MIN_CYCLE_RESOLUTION = 1.43;
+	//三角波、正弦波周期精度1.43×256us
+	public static final double SIN_TRI_CYCLE_RESOLUTION = new BigDecimal(1.43 * MIN_CYCLE_RESOLUTION).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+	
 }
 /**
  * 
