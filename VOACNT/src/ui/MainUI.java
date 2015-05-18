@@ -2,7 +2,9 @@ package ui;
 
 import handler.ATTMap;
 import handler.Constants;
+import handler.ExcelHandler;
 import handler.Handler;
+import handler.TxtHandler;
 
 import javax.swing.JFrame;
 
@@ -66,11 +68,12 @@ public class MainUI
 	private JTextField staticAttTextField;
 	private JTextField varATTMinTextField;
 	private JTextField varATTMaxTextField;
-	private JTextField textField_6;
+	private JTextField dutyCycleTextField;
 	private JTextField choosenFilePath;
 	private JLabel var_cycle_Label;
-	private JLabel resolution_Label;
-
+	private JLabel att_resolution_Label;
+	private ExcelHandler excelHandler;
+	private TxtHandler txtHandler;
 	// 固定衰减设置
 	private double staticATT = Constants.DEFAULT_ATT;
 	private byte staticCh = (byte) 0x01;
@@ -84,11 +87,19 @@ public class MainUI
 
 	ATTMap attMap = new ATTMap();
 	private JTextField varATTCYCLETextField;
-	private JTextField textField_1;
-	private JTextField textField_2;
+	private JTextField ldCycleTextField;
+	private JTextField fileCycleTextField;
+
+	// LD方式设置
+	private byte ldCh = (byte) 0x01;
+	private int ldCycle = 0;
+	private int ldDuty = 1;
 
 	// 文件接口文件绝对地址
-	String filePath;
+	String filePath = null;
+	int fileLength = 0;
+	private byte fileCH = (byte) 0x01;
+	private String file[];
 
 	/**
 	 * Create the application.
@@ -235,6 +246,7 @@ public class MainUI
 		panel.add(lblNewLabel_4);
 
 		staticAttTextField = new JTextField();
+		staticAttTextField.setName("att");
 		panel.add(staticAttTextField);
 		staticAttTextField.setColumns(10);
 
@@ -340,20 +352,23 @@ public class MainUI
 		panel_7.add(label_4);
 
 		varATTCYCLETextField = new JTextField();
+		varATTCYCLETextField.setName("input");
 		varATTCYCLETextField.setColumns(5);
 		panel_7.add(varATTCYCLETextField);
 
 		JLabel label_14 = new JLabel("\u00D7");
 		panel_7.add(label_14);
 
-		resolution_Label = new JLabel(Constants.MIN_CYCLE_RESOLUTION
-				+ "");
-		panel_7.add(resolution_Label);
+		att_resolution_Label = new JLabel(
+				Constants.MIN_CYCLE_RESOLUTION + "");
+		att_resolution_Label.setName("res");
+		panel_7.add(att_resolution_Label);
 
 		JLabel label_16 = new JLabel("=");
 		panel_7.add(label_16);
 
 		var_cycle_Label = new JLabel("--");
+		var_cycle_Label.setName("cycle");
 		panel_7.add(var_cycle_Label);
 
 		final JLabel unit_Label = new JLabel("us");
@@ -366,6 +381,7 @@ public class MainUI
 		panel_8.add(label_5);
 
 		varATTMinTextField = new JTextField();
+		varATTMinTextField.setName("att");
 		varATTMinTextField.setColumns(5);
 		panel_8.add(varATTMinTextField);
 
@@ -376,6 +392,7 @@ public class MainUI
 		panel_8.add(label_6);
 
 		varATTMaxTextField = new JTextField();
+		varATTMaxTextField.setName("att");
 		varATTMaxTextField.setColumns(5);
 		panel_8.add(varATTMaxTextField);
 
@@ -404,7 +421,6 @@ public class MainUI
 
 		varRuleComboBox.addActionListener(new ActionListener()
 		{
-
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
@@ -413,13 +429,13 @@ public class MainUI
 				varRule = Constants.VAR_ATT_RULE_TAGS[index];
 				if (index != 0)
 				{
-					resolution_Label
+					att_resolution_Label
 							.setText(Constants.SIN_TRI_CYCLE_RESOLUTION
 									+ "");
 					unit_Label.setText("ms");
 				} else
 				{
-					resolution_Label
+					att_resolution_Label
 							.setText(Constants.MIN_CYCLE_RESOLUTION
 									+ "");
 					unit_Label.setText("us");
@@ -429,7 +445,7 @@ public class MainUI
 				{
 					var_cycle_Label.setText(new BigDecimal(Integer
 							.valueOf(varATTCYCLETextField.getText())
-							* Double.valueOf(resolution_Label
+							* Double.valueOf(att_resolution_Label
 									.getText())).setScale(2,
 							BigDecimal.ROUND_HALF_UP)
 							+ "");
@@ -496,10 +512,22 @@ public class MainUI
 		JLabel label_8 = new JLabel("\u901A\u9053\u9009\u62E9:");
 		panel_9.add(label_8);
 
-		JComboBox comboBox_4 = new JComboBox();
-		comboBox_4.setModel(new DefaultComboBoxModel(new String[]
-		{ "CH1", "CH2", "CH3", "CH4", "SINGLE" }));
-		panel_9.add(comboBox_4);
+		final JComboBox<String> ldComboBox = new JComboBox<String>();
+		ldComboBox.setModel(new DefaultComboBoxModel<String>(
+				new String[]
+				{ "CH1", "CH2", "CH3", "CH4", "SINGLE" }));
+		panel_9.add(ldComboBox);
+
+		ldComboBox.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				// TODO Auto-generated method stub
+				int index = ldComboBox.getSelectedIndex();
+				ldCh = Constants.CHANNEL[index];
+			}
+		});
 
 		JPanel panel_10 = new JPanel();
 		panel_5.add(panel_10);
@@ -507,21 +535,24 @@ public class MainUI
 		JLabel label_9 = new JLabel("\u5468\u671F\u8BBE\u7F6E:");
 		panel_10.add(label_9);
 
-		textField_1 = new JTextField();
-		textField_1.setColumns(5);
-		panel_10.add(textField_1);
+		ldCycleTextField = new JTextField();
+		ldCycleTextField.setName("input");
+		ldCycleTextField.setColumns(5);
+		panel_10.add(ldCycleTextField);
 
 		JLabel label_18 = new JLabel("\u00D7");
 		panel_10.add(label_18);
 
-		JLabel label_19 = new JLabel("1.43");
-		panel_10.add(label_19);
+		JLabel ld_resolution_JLabel = new JLabel("1.43");
+		ld_resolution_JLabel.setName("res");
+		panel_10.add(ld_resolution_JLabel);
 
 		JLabel label_20 = new JLabel("=");
 		panel_10.add(label_20);
 
-		JLabel label_21 = new JLabel("--");
-		panel_10.add(label_21);
+		JLabel ld_cycle_label = new JLabel("--");
+		ld_cycle_label.setName("cycle");
+		panel_10.add(ld_cycle_label);
 
 		JLabel label_22 = new JLabel("us");
 		panel_10.add(label_22);
@@ -532,15 +563,36 @@ public class MainUI
 		JLabel label_10 = new JLabel("\u5360\u7A7A\u6BD4:");
 		panel_11.add(label_10);
 
-		textField_6 = new JTextField();
-		textField_6.setColumns(5);
-		panel_11.add(textField_6);
+		dutyCycleTextField = new JTextField();
+		dutyCycleTextField.setName("duty");
+		dutyCycleTextField.setColumns(5);
+		panel_11.add(dutyCycleTextField);
+
+		dutyCycleTextField.addKeyListener(new myKeyListener(
+				dutyCycleTextField));
+		dutyCycleTextField.setInputMap(JTextField.WHEN_FOCUSED,
+				new InputMap());
 
 		JLabel label_11 = new JLabel("%");
 		panel_11.add(label_11);
 
-		JButton button_1 = new JButton("\u786E\u5B9A");
-		panel_5.add(button_1);
+		JButton ldBbutton = new JButton("\u786E\u5B9A");
+		ldBbutton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				if (ldCycleTextField.getText().trim().equals("")
+						|| dutyCycleTextField.getText().trim()
+								.equals(""))
+				{
+					JOptionPane.showMessageDialog(frmVOA, "输入为空!",
+							"输入错误", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				handler.setLDATT(ldCh, ldCycle, ldDuty);
+			}
+		});
+		panel_5.add(ldBbutton);
 
 		JPanel panel_2 = new JPanel();
 		panel_2.setBorder(new TitledBorder(new LineBorder(new Color(
@@ -556,6 +608,26 @@ public class MainUI
 		JPanel panel_12 = new JPanel();
 		panel_2.add(panel_12);
 
+		JLabel label_15 = new JLabel("\u901A\u9053\u9009\u62E9:");
+		panel_12.add(label_15);
+
+		final JComboBox<String> fileCHcomboBox = new JComboBox<String>();
+		fileCHcomboBox.setModel(new DefaultComboBoxModel<String>(
+				new String[]
+				{ "CH1", "CH2", "CH3", "CH4", "SINGLE" }));
+		panel_12.add(fileCHcomboBox);
+		fileCHcomboBox.addActionListener(new ActionListener()
+		{
+
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				// TODO Auto-generated method stub
+				int index = fileCHcomboBox.getSelectedIndex();
+				fileCH = Constants.CHANNEL[index];
+			}
+		});
+
 		JLabel label_13 = new JLabel("\u9009\u62E9\u6587\u4EF6:");
 		panel_12.add(label_13);
 
@@ -564,23 +636,106 @@ public class MainUI
 		choosenFilePath.setColumns(20);
 
 		JButton fileChooseButton = new JButton("...");
+
+		panel_12.add(fileChooseButton);
+
+		JPanel panel_15 = new JPanel();
+		panel_2.add(panel_15);
+
+		JButton fileButton = new JButton("\u786E\u5B9A");
+		fileButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				if (filePath == null)
+				{
+					JOptionPane.showMessageDialog(frmVOA, "请选择文件!",
+							"输入错误", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				if (fileCycleTextField.getText().trim().equals(""))
+				{
+					JOptionPane.showMessageDialog(frmVOA, "请输入周期!",
+							"输入错误", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				handler.setFileATT(
+						fileCH,
+						Integer.valueOf(fileCycleTextField.getText()),
+						file, fileLength);
+			}
+		});
+
+		JLabel label = new JLabel("\u5468\u671F\uFF1A");
+		panel_15.add(label);
+
+		fileCycleTextField = new JTextField();
+		panel_15.add(fileCycleTextField);
+		fileCycleTextField.setName("input");
+		fileCycleTextField.setColumns(5);
+
+		fileCycleTextField.addKeyListener(new myKeyListener(
+				fileCycleTextField));
+		fileCycleTextField.setInputMap(JTextField.WHEN_FOCUSED,
+				new InputMap());
+
+		JLabel label_1 = new JLabel("\u00D7");
+		panel_15.add(label_1);
+
+		JLabel file_res_label = new JLabel("1.43");
+		panel_15.add(file_res_label);
+		file_res_label.setName("res");
+
+		JLabel label_2 = new JLabel("\u00D7");
+		panel_15.add(label_2);
+
+		final JLabel file_length_Label = new JLabel("L");
+		panel_15.add(file_length_Label);
+		file_length_Label.setName("length");
+
+		JLabel label_23 = new JLabel("=");
+		panel_15.add(label_23);
+
+		JLabel file_cycle_label = new JLabel("--");
+		panel_15.add(file_cycle_label);
+		file_cycle_label.setName("cycle");
+
+		JLabel label_25 = new JLabel("us");
+		panel_15.add(label_25);
+		panel_15.add(fileButton);
+
 		fileChooseButton.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
 			{
 				JFileChooser fileChooser = new JFileChooser("D:");
-				fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-//				fileChooser.setFileFilter(new myFileFilter("xls"));
-//				fileChooser.setFileFilter(new myFileFilter("txt"));
+				fileChooser
+						.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				fileChooser.showOpenDialog(frmVOA);
 				if (fileChooser.getSelectedFile() != null)
 				{
 					filePath = fileChooser.getSelectedFile()
 							.getAbsolutePath();
-					if (getExtension(new File(filePath))
-							.toLowerCase().equals("xls"))
+					String ext = getExtension(new File(filePath))
+							.toLowerCase();
+					if (ext.equals("xls"))
 					{
 						choosenFilePath.setText(filePath);
+						excelHandler = new ExcelHandler(filePath);
+						fileLength = excelHandler.getFileLength();
+						fileLength = fileLength < 4000 ? fileLength
+								: 4000;
+						file_length_Label.setText(fileLength + "");
+						file = excelHandler.getFile();
+					} else if (ext.equals("txt"))
+					{
+						choosenFilePath.setText(filePath);
+						txtHandler = new TxtHandler(filePath);
+						fileLength = txtHandler.getFileLength();
+						fileLength = fileLength < 4000 ? fileLength
+								: 4000;
+						file_length_Label.setText(fileLength + "");
+						file = txtHandler.getFile();
 					} else
 					{
 						JOptionPane.showMessageDialog(frmVOA,
@@ -590,36 +745,11 @@ public class MainUI
 				}
 			}
 		});
-		panel_12.add(fileChooseButton);
 
-		JLabel label = new JLabel("\u5468\u671F\uFF1A");
-		panel_12.add(label);
-
-		textField_2 = new JTextField();
-		textField_2.setColumns(5);
-		panel_12.add(textField_2);
-
-		JLabel label_1 = new JLabel("\u00D7");
-		panel_12.add(label_1);
-
-		JLabel label_2 = new JLabel("1.43");
-		panel_12.add(label_2);
-
-		JLabel label_23 = new JLabel("=");
-		panel_12.add(label_23);
-
-		JLabel label_24 = new JLabel("--");
-		panel_12.add(label_24);
-
-		JLabel label_25 = new JLabel("us");
-		panel_12.add(label_25);
-
-		JPanel panel_15 = new JPanel();
-		panel_2.add(panel_15);
-
-		JButton button_3 = new JButton("\u786E\u5B9A");
-		panel_15.add(button_3);
-		// 创建面板
+		ldCycleTextField.addKeyListener(new myKeyListener(
+				ldCycleTextField));
+		ldCycleTextField.setInputMap(JTextField.WHEN_FOCUSED,
+				new InputMap());
 	}
 
 	private String getExtension(File f)
@@ -636,47 +766,8 @@ public class MainUI
 		}
 	}
 
-//	class myFileFilter extends FileFilter
-//	{
-//		String ext;
-//
-//		public myFileFilter(String ext)
-//		{
-//			// TODO Auto-generated constructor stub
-//			this.ext = ext;
-//		}
-//
-//		@Override
-//		public boolean accept(File f)
-//		{
-//			// TODO Auto-generated method stub
-//			if (f.isFile())
-//			{
-//				return false;
-//			}
-//
-//			String extension = getExtension(f);
-//			System.out.println(extension + " " + "ext");
-//			if (extension.toLowerCase()
-//					.equals(this.ext.toLowerCase()))
-//			{
-//				return true;
-//			}
-//			return false;
-//		}
-//
-//		@Override
-//		public String getDescription()
-//		{
-//			// TODO Auto-generated method stub
-//			return this.ext.toUpperCase();
-//		}
-//
-//	}
-
 	class myKeyListener implements KeyListener
 	{
-
 		private JTextField textField;
 
 		public myKeyListener(JTextField textField)
@@ -690,58 +781,184 @@ public class MainUI
 		{
 			// TODO Auto-generated method stub
 			String oldText = textField.getText();
+			String textFileName = textField.getName();
+			JLabel resJLabel = getSpecJLabel(textField, "res");
+			JLabel cycleJLabel = getSpecJLabel(textField, "cycle");
+			JLabel fileLengthJLabel = getSpecJLabel(textField,
+					"length");
+
 			if (e.getKeyChar() >= '0' && e.getKeyChar() <= '9'
 					|| e.getKeyChar() == '.')
 			{
-				if (textField == varATTCYCLETextField
+				if (textFileName != null
+						&& !textFileName.equals("att")
 						&& e.getKeyChar() != '.')
 				{
 					textField.setText(oldText + e.getKeyChar());
+
 					int inputCycleNum = Integer.valueOf(textField
 							.getText());
-					BigDecimal cycleBigDecimal = new BigDecimal(
-							inputCycleNum
-									* Double.valueOf(resolution_Label
-											.getText())).setScale(2,
-							BigDecimal.ROUND_HALF_UP);
-					var_cycle_Label.setText(cycleBigDecimal + "");
+
+					if (resJLabel != null)
+					{
+						double cycle;
+						if (fileLengthJLabel != null)
+						{
+							double res = Double.valueOf(resJLabel
+									.getText());
+							cycle = inputCycleNum * fileLength * res;
+						} else
+						{
+							double res = Double.valueOf(resJLabel
+									.getText());
+							cycle = inputCycleNum * res;
+						}
+						BigDecimal cycleBigDecimal = new BigDecimal(
+								cycle).setScale(2,
+								BigDecimal.ROUND_HALF_UP);
+						cycleJLabel.setText(cycleBigDecimal + "");
+					}
+
 					if (inputCycleNum > 256)
 					{
 						JOptionPane.showMessageDialog(frmVOA,
-								"周期最大值不能超过256", "输入超出范围",
+								"周期最大值不能超过256!", "输入超出范围",
 								JOptionPane.ERROR_MESSAGE);
+						textField.setText("");
+						return;
 					}
-					return;
+					if (textFileName.equals("duty")
+							&& inputCycleNum > 100)
+					{
+						JOptionPane.showMessageDialog(frmVOA,
+								"占空比最大值不能超过100!", "输入超出范围",
+								JOptionPane.ERROR_MESSAGE);
+						textField.setText("");
+						return;
+					}
 				}
-				textField.setText(oldText + e.getKeyChar());
+				if (textFileName.equals("att"))
+				{
+					textField.setText(oldText + e.getKeyChar());
+					try
+					{
+						double inputAtt = Double.valueOf(textField
+								.getText());
+						if (inputAtt > 37)
+						{
+							JOptionPane.showMessageDialog(frmVOA,
+									"衰减量最大值不能超过37!", "输入超出范围",
+									JOptionPane.ERROR_MESSAGE);
+							textField.setText("");
+							return;
+						}
+					} catch (NumberFormatException e2)
+					{
+						// TODO: handle exception
+						textField.setText(oldText);
+					}
+
+				}
+
 			} else if (e.getKeyChar() == KeyEvent.VK_BACK_SPACE
 					&& oldText.length() > 0)
 			{
 				textField.setText(oldText.substring(0,
 						oldText.length() - 1));
-				int inputCycleNum = Integer.valueOf(textField
-						.getText());
-				BigDecimal cycleBigDecimal = new BigDecimal(
-						inputCycleNum
-								* Double.valueOf(resolution_Label
-										.getText())).setScale(2,
-						BigDecimal.ROUND_HALF_UP);
-				if (textField == varATTCYCLETextField
+				if (textFileName != null
+						&& !textFileName.equals("att")
 						&& textField.getText().length() > 0)
 				{
-					var_cycle_Label.setText(cycleBigDecimal + "");
+					int inputCycleNum = Integer.valueOf(textField
+							.getText());
+					if (resJLabel != null)
+					{
+						double cycle;
+						if (fileLengthJLabel != null)
+						{
+							double res = Double.valueOf(resJLabel
+									.getText());
+							cycle = inputCycleNum * fileLength * res;
+						} else
+						{
+							double res = Double.valueOf(resJLabel
+									.getText());
+							cycle = inputCycleNum * res;
+						}
+						BigDecimal cycleBigDecimal = new BigDecimal(
+								cycle).setScale(2,
+								BigDecimal.ROUND_HALF_UP);
+						cycleJLabel.setText(cycleBigDecimal + "");
+					}
 					if (inputCycleNum > 256)
 					{
 						JOptionPane.showMessageDialog(frmVOA,
-								"周期最大值不能超过256", "输入超出范围",
+								"占空比最大值不能超过100!", "输入超出范围",
 								JOptionPane.ERROR_MESSAGE);
+						textField.setText("");
+						return;
 					}
-
-				} else if (textField.getText().length() == 0)
+					if (textFileName.equals("duty")
+							&& inputCycleNum >= 100)
+					{
+						JOptionPane.showMessageDialog(frmVOA,
+								"周期最大值不能超过256!", "输入超出范围",
+								JOptionPane.ERROR_MESSAGE);
+						textField.setText("");
+						return;
+					}
+					if (textFileName.equals("att"))
+					{
+						textField.setText(oldText + e.getKeyChar());
+						try
+						{
+							double inputAtt = Double
+									.valueOf(textField.getText());
+							if (inputAtt > 37)
+							{
+								JOptionPane.showMessageDialog(frmVOA,
+										"衰减量最大值不能超过37!", "输入超出范围",
+										JOptionPane.ERROR_MESSAGE);
+								textField.setText("");
+								return;
+							}
+						} catch (NumberFormatException exception)
+						{
+							textField.setText(oldText);
+						}
+					}
+				} else if (cycleJLabel != null
+						&& textField.getText().length() == 0)
 				{
-					var_cycle_Label.setText("--");
+					cycleJLabel.setText("--");
 				}
 			}
+		}
+
+		/**
+		 * 活动特点名字的JLabel对象
+		 * 
+		 * @param component
+		 *            与需要获得的JLabel对象同父组件的组件
+		 * @param componentName
+		 *            需要获得的JLabel的name
+		 * @return
+		 */
+		private JLabel getSpecJLabel(Component component,
+				String componentName)
+		{
+			Component components[] = component.getParent()
+					.getComponents();
+			JLabel label = null;
+			for (Component c : components)
+			{
+				if (c.getName() != null
+						&& c.getName().equals(componentName))
+				{
+					label = (JLabel) c;
+				}
+			}
+			return label;
 		}
 
 		@Override

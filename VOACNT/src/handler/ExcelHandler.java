@@ -12,12 +12,12 @@ import jxl.read.biff.BiffException;
 public class ExcelHandler
 {
 	Workbook workbook;
-	public ExcelHandler()
+	public ExcelHandler(String fileName)
 	{
 		// TODO Auto-generated constructor stub
 		try
 		{
-			workbook = Workbook.getWorkbook(new File(Constants.EXCEL));
+			workbook = Workbook.getWorkbook(new File(fileName));
 		} catch (BiffException | IOException e)
 		{
 			// TODO Auto-generated catch block
@@ -34,5 +34,20 @@ public class ExcelHandler
 			ATTmap.put(Byte.valueOf((byte)i), Double.valueOf(sheet.getCell(2, i).getContents()));
 		}
 		return ATTmap;
+	}
+	
+	public int getFileLength()
+	{
+		return workbook.getSheet(0).getRows();
+	}
+	
+	public String[] getFile()
+	{
+		String[] file = new String[getFileLength()];
+		for (int i = 0; i < getFileLength(); i++)
+		{
+			file[i] = workbook.getSheet(0).getCell(0, i).getContents();
+		}
+		return file;
 	}
 }

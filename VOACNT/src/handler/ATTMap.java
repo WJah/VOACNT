@@ -6,7 +6,7 @@ import java.util.Map;
 public class ATTMap
 {
 	Map<Byte, Double> ATTs = new HashMap<Byte,Double>();
-	ExcelHandler excelHandler = new ExcelHandler();
+	ExcelHandler excelHandler = new ExcelHandler(Constants.EXCEL);
 	byte TEMP = 0x00;
 	public ATTMap()
 	{		

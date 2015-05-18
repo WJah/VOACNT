@@ -30,6 +30,8 @@ public abstract class Constants
 	
 	//DAC方式功能标示
 	public static final byte DAC_FUNC_SETTING_TAG = 0x01;
+	//LD方式功能标示
+	public static final byte LD_FUNC_SETTING_TAG = 0x02;
 	
 	//固定衰减设置标识
 	public static final byte STATIC_ATT_SETTING_TAG = 0x01;
@@ -50,6 +52,8 @@ public abstract class Constants
 	//三角波、正弦波周期精度1.43×256us
 	public static final double SIN_TRI_CYCLE_RESOLUTION = new BigDecimal(1.43 * MIN_CYCLE_RESOLUTION).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
 	
+	//文件输入功能表示
+	public static final byte FILE_ATT_SETTING_TAG = 0x03;
 }
 /**
  * 

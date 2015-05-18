@@ -68,7 +68,6 @@ public abstract class RS232 implements SerialPortEventListener
 					{
 						tempMapCur = 0;
 						tempMaps.put(tempMapKey, tempMap);
-						handler.getTemperature(tempMaps);
 					}
 
 					/**
@@ -83,7 +82,6 @@ public abstract class RS232 implements SerialPortEventListener
 					{
 						System.out.println("chnum" + readBuffer[i]);
 						chNum = readBuffer[i];
-						handler.setChannelNum(chNum);
 						chCur = 0;
 					}
 //					System.err.println("read:" + readBuffer[i]);
