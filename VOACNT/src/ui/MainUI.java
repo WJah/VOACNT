@@ -139,10 +139,10 @@ public class MainUI
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				// if (handler.openCom()) {
+				if (handler.openCom()) {
 				frmVoa.setVisible(false);
 				frmVOA.setVisible(true);
-				// }
+				}
 			}
 		});
 		panel_1.add(loginButton);
@@ -340,10 +340,7 @@ public class MainUI
 
 		final JComboBox<String> varRuleComboBox = new JComboBox<String>();
 		panel_6.add(varRuleComboBox);
-		varRuleComboBox.setModel(new DefaultComboBoxModel<String>(
-				new String[]
-				{ "\u65B9\u6CE2", "\u6B63\u5F26\u6CE2",
-						"\u4E09\u89D2\u6CE2" }));
+		varRuleComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"\u65B9\u6CE2", "\u4E09\u89D2\u6CE2", "\u6B63\u5F26\u6CE2"}));
 
 		JPanel panel_7 = new JPanel();
 		panel_4.add(panel_7);
@@ -363,6 +360,9 @@ public class MainUI
 				Constants.MIN_CYCLE_RESOLUTION + "");
 		att_resolution_Label.setName("res");
 		panel_7.add(att_resolution_Label);
+		
+		JLabel label_17 = new JLabel(" + 5.4");
+		panel_7.add(label_17);
 
 		JLabel label_16 = new JLabel("=");
 		panel_7.add(label_16);
@@ -450,7 +450,6 @@ public class MainUI
 							BigDecimal.ROUND_HALF_UP)
 							+ "");
 				}
-
 			}
 		});
 
@@ -459,13 +458,13 @@ public class MainUI
 		{
 			public void actionPerformed(ActionEvent arg0)
 			{
-				String varCycle = varATTCYCLETextField.getText()
+				String varCycleString = varATTCYCLETextField.getText()
 						.trim();
 				String varMinAttString = varATTMinTextField.getText()
 						.trim();
 				String varMaxAttString = varATTMaxTextField.getText()
 						.trim();
-				if (varCycle.equals("") || varMinAttString.equals("")
+				if (varCycleString.equals("") || varMinAttString.equals("")
 						|| varMaxAttString.equals(""))
 				{
 					JOptionPane.showMessageDialog(frmVOA, " ‰»ÎŒ™ø’£°",
@@ -490,9 +489,10 @@ public class MainUI
 							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				handler.setVarATT(varCh, varRule, Integer
-						.valueOf(varATTCYCLETextField.getText()
-								.trim()), varATTMin, varATTMax);
+				varCycle = Integer.valueOf(varCycleString);
+				varATTMin = Double.valueOf(varMinAttString);
+				varATTMax = Double.valueOf(varMaxAttString);
+				handler.setVarATT(varCh, varRule,varCycle , varATTMin, varATTMax);
 			}
 		});
 		panel_4.add(button);
@@ -543,9 +543,12 @@ public class MainUI
 		JLabel label_18 = new JLabel("\u00D7");
 		panel_10.add(label_18);
 
-		JLabel ld_resolution_JLabel = new JLabel("1.43");
+		JLabel ld_resolution_JLabel = new JLabel("0.72");
 		ld_resolution_JLabel.setName("res");
 		panel_10.add(ld_resolution_JLabel);
+		
+		JLabel label_19 = new JLabel(" + 5.4");
+		panel_10.add(label_19);
 
 		JLabel label_20 = new JLabel("=");
 		panel_10.add(label_20);
@@ -589,6 +592,8 @@ public class MainUI
 							" ‰»Î¥ÌŒÛ", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
+				ldCycle = Integer.valueOf(ldCycleTextField.getText().trim());
+				ldDuty = Integer.valueOf(dutyCycleTextField.getText().trim());
 				handler.setLDATT(ldCh, ldCycle, ldDuty);
 			}
 		});
@@ -682,7 +687,7 @@ public class MainUI
 		JLabel label_1 = new JLabel("\u00D7");
 		panel_15.add(label_1);
 
-		JLabel file_res_label = new JLabel("1.43");
+		JLabel file_res_label = new JLabel(Constants.MIN_CYCLE_RESOLUTION + "");
 		panel_15.add(file_res_label);
 		file_res_label.setName("res");
 
@@ -814,7 +819,7 @@ public class MainUI
 							cycle = inputCycleNum * res;
 						}
 						BigDecimal cycleBigDecimal = new BigDecimal(
-								cycle).setScale(2,
+								cycle + 5.4).setScale(2,
 								BigDecimal.ROUND_HALF_UP);
 						cycleJLabel.setText(cycleBigDecimal + "");
 					}
@@ -886,7 +891,7 @@ public class MainUI
 							cycle = inputCycleNum * res;
 						}
 						BigDecimal cycleBigDecimal = new BigDecimal(
-								cycle).setScale(2,
+								cycle + 5.4).setScale(2,
 								BigDecimal.ROUND_HALF_UP);
 						cycleJLabel.setText(cycleBigDecimal + "");
 					}

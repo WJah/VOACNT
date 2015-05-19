@@ -148,6 +148,7 @@ public class Handler extends NullPointerException
 		rs.write(ch);
 		rs.write((byte)cycle);
 		rs.write((byte)duty);
+		System.out.println((byte)cycle + " " + (byte)duty);
 		sendInvalidByte(2);
 	}
 	
