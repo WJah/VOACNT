@@ -28,6 +28,7 @@ import java.awt.event.KeyListener;
 
 import javax.swing.Action;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.InputMap;
 import javax.swing.JButton;
@@ -58,6 +59,8 @@ import javax.swing.border.MatteBorder;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.JRadioButton;
+import javax.swing.SwingConstants;
 
 public class MainUI
 {
@@ -139,10 +142,10 @@ public class MainUI
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				if (handler.openCom()) {
+				//if (handler.openCom()) {
 				frmVoa.setVisible(false);
 				frmVOA.setVisible(true);
-				}
+				//}
 			}
 		});
 		panel_1.add(loginButton);
@@ -160,7 +163,7 @@ public class MainUI
 	{
 		frmVOA = new JFrame();
 		frmVOA.setResizable(false);
-		frmVOA.setSize(new Dimension(650, 400));
+		frmVOA.setSize(new Dimension(750, 400));
 		frmVOA.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmVOA.setTitle("VOA…Ë÷√»Ìº˛V0.1");
 		GridBagLayout gridBagLayout = new GridBagLayout();
@@ -183,6 +186,26 @@ public class MainUI
 		gbc_panel_3.gridy = 0;
 		frmVOA.getContentPane().add(panel_3, gbc_panel_3);
 		panel_3.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		
+		JPanel panel_16 = new JPanel();
+		panel_16.setBorder(new TitledBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0), 1, true), "VOA\u9009\u62E9", TitledBorder.CENTER, TitledBorder.TOP, null, null), "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_3.add(panel_16);
+		
+		
+		final JRadioButton fourChsVOARadioButton = new JRadioButton("4\u901A\u9053");
+		fourChsVOARadioButton.setSelected(true);
+		panel_16.add(fourChsVOARadioButton);
+		
+		
+		
+		
+		final JRadioButton singleVOARadioButton = new JRadioButton("\u5355\u901A\u9053");
+		panel_16.add(singleVOARadioButton);
+		
+		 
+		ButtonGroup buttonGroup = new ButtonGroup();
+		buttonGroup.add(singleVOARadioButton);
+		buttonGroup.add(fourChsVOARadioButton);
 
 		JPanel panel_13 = new JPanel();
 		panel_13.setBorder(new TitledBorder(new TitledBorder(
@@ -196,6 +219,7 @@ public class MainUI
 		panel_13.add(lblNewLabel_2);
 
 		final JComboBox<String> tempComboBox = new JComboBox<String>();
+		lblNewLabel_2.setLabelFor(tempComboBox);
 		panel_13.add(tempComboBox);
 		tempComboBox.setModel(new DefaultComboBoxModel<String>(
 				new String[]
@@ -214,7 +238,7 @@ public class MainUI
 			}
 		});
 
-		JPanel panel = new JPanel();
+		final JPanel panel = new JPanel();
 		panel_3.add(panel);
 		panel.setBorder(new TitledBorder(new LineBorder(new Color(0,
 				0, 0), 1, true),
@@ -224,10 +248,10 @@ public class MainUI
 		JLabel lblNewLabel_3 = new JLabel("\u901A\u9053\u9009\u62E9:");
 		panel.add(lblNewLabel_3);
 
+		
 		final JComboBox<String> chComboBox1 = new JComboBox<String>();
-		chComboBox1.setModel(new DefaultComboBoxModel<String>(
-				new String[]
-				{ "CH1", "CH2", "CH3", "CH4", "SINGLE" }));
+		lblNewLabel_3.setLabelFor(chComboBox1);
+		chComboBox1.setModel(new DefaultComboBoxModel<String>(new String[] {"CH1", "CH2", "CH3", "CH4"}));
 		panel.add(chComboBox1);
 
 		chComboBox1.addActionListener(new ActionListener()
@@ -318,9 +342,7 @@ public class MainUI
 		panel_6.add(label_7);
 
 		final JComboBox<String> varAttCHcomboBox = new JComboBox<String>();
-		varAttCHcomboBox.setModel(new DefaultComboBoxModel<String>(
-				new String[]
-				{ "CH1", "CH2", "CH3", "CH4", "SINGLE" }));
+		varAttCHcomboBox.setModel(new DefaultComboBoxModel(new String[] {"CH1", "CH2", "CH3", "CH4"}));
 		panel_6.add(varAttCHcomboBox);
 
 		varAttCHcomboBox.addActionListener(new ActionListener()
@@ -368,7 +390,9 @@ public class MainUI
 		panel_7.add(label_16);
 
 		var_cycle_Label = new JLabel("--");
+		var_cycle_Label.setHorizontalAlignment(SwingConstants.CENTER);
 		var_cycle_Label.setName("cycle");
+		var_cycle_Label.setPreferredSize(new Dimension(40, 15));
 		panel_7.add(var_cycle_Label);
 
 		final JLabel unit_Label = new JLabel("us");
@@ -513,9 +537,7 @@ public class MainUI
 		panel_9.add(label_8);
 
 		final JComboBox<String> ldComboBox = new JComboBox<String>();
-		ldComboBox.setModel(new DefaultComboBoxModel<String>(
-				new String[]
-				{ "CH1", "CH2", "CH3", "CH4", "SINGLE" }));
+		ldComboBox.setModel(new DefaultComboBoxModel(new String[] {"CH1", "CH2", "CH3", "CH4"}));
 		panel_9.add(ldComboBox);
 
 		ldComboBox.addActionListener(new ActionListener()
@@ -554,6 +576,8 @@ public class MainUI
 		panel_10.add(label_20);
 
 		JLabel ld_cycle_label = new JLabel("--");
+		ld_cycle_label.setPreferredSize(new Dimension(40, 15));
+		ld_cycle_label.setHorizontalAlignment(SwingConstants.CENTER);
 		ld_cycle_label.setName("cycle");
 		panel_10.add(ld_cycle_label);
 
@@ -617,9 +641,7 @@ public class MainUI
 		panel_12.add(label_15);
 
 		final JComboBox<String> fileCHcomboBox = new JComboBox<String>();
-		fileCHcomboBox.setModel(new DefaultComboBoxModel<String>(
-				new String[]
-				{ "CH1", "CH2", "CH3", "CH4", "SINGLE" }));
+		fileCHcomboBox.setModel(new DefaultComboBoxModel(new String[] {"CH1", "CH2", "CH3", "CH4"}));
 		panel_12.add(fileCHcomboBox);
 		fileCHcomboBox.addActionListener(new ActionListener()
 		{
@@ -702,6 +724,8 @@ public class MainUI
 		panel_15.add(label_23);
 
 		JLabel file_cycle_label = new JLabel("--");
+		file_cycle_label.setPreferredSize(new Dimension(40, 15));
+		file_cycle_label.setHorizontalAlignment(SwingConstants.CENTER);
 		panel_15.add(file_cycle_label);
 		file_cycle_label.setName("cycle");
 
@@ -755,6 +779,58 @@ public class MainUI
 				ldCycleTextField));
 		ldCycleTextField.setInputMap(JTextField.WHEN_FOCUSED,
 				new InputMap());
+		
+		singleVOARadioButton.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				// TODO Auto-generated method stub
+				if (singleVOARadioButton.isSelected())
+				{
+					tempComboBox.setEnabled(false);
+					chComboBox1.setModel(new DefaultComboBoxModel<String>(new String[] {"CH1", "CH2", "CH3", "CH4","SIG"}));
+					chComboBox1.setSelectedIndex(4);
+					chComboBox1.setEnabled(false);
+					
+					varAttCHcomboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"CH1", "CH2", "CH3", "CH4","SIG"}));
+					varAttCHcomboBox.setSelectedIndex(4);
+					varAttCHcomboBox.setEnabled(false);
+					
+					ldComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"CH1", "CH2", "CH3", "CH4","SIG"}));
+					ldComboBox.setSelectedIndex(4);
+					ldComboBox.setEnabled(false);
+					
+					fileCHcomboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"CH1", "CH2", "CH3", "CH4","SIG"}));
+					fileCHcomboBox.setSelectedIndex(4);
+					fileCHcomboBox.setEnabled(false);
+				}
+			}
+		});
+		fourChsVOARadioButton.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				// TODO Auto-generated method stub
+				if (fourChsVOARadioButton.isSelected())
+				{
+					tempComboBox.setEnabled(true);
+					chComboBox1.setModel(new DefaultComboBoxModel<String>(new String[] {"CH1", "CH2", "CH3", "CH4"}));
+					chComboBox1.setEnabled(true);
+					
+					varAttCHcomboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"CH1", "CH2", "CH3", "CH4"}));
+					varAttCHcomboBox.setEnabled(true);
+					
+					ldComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"CH1", "CH2", "CH3", "CH4"}));
+					ldComboBox.setEnabled(true);
+					
+					fileCHcomboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"CH1", "CH2", "CH3", "CH4"}));
+					fileCHcomboBox.setEnabled(true);
+				}
+			}
+		});
 	}
 
 	private String getExtension(File f)
